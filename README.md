@@ -20,3 +20,48 @@ Identify applicants who have applied for a job that currently has no opening.
 Find all job openings that require a minimum of 3 to 5 years of experience.
 ## 6. Education Level Analysis:
 Retrieve a list of job titles and the count of applicants who have applied for each job, grouped by education level (e.g., Bachelor's, Master's, PhD).
+
+
+
+CREATE TABLE JobOpenings (JobID INT PRIMARY KEY, JobTitle VARCHAR(255), Department VARCHAR(255),
+						 MinimumExperience INT, MinimumEducation VARCHAR(255));
+						 
+INSERT INTO JobOpenings VALUES
+	(101, 'Spacecraft Pilot', 'Flight Operations', 5, 'Bachelor''s in Aerospace Engineering'),
+	(102, 'Mission Specialist', 'Science', 3, 'PhD in Physics or related field'),
+	(103, 'Space Engineer', 'Engineering', 3, 'Bachelor''s in Mechanical Engineering'),
+	(104, 'Communications Officer', 'Communications', 2, 'Bachelor''s in Communications');
+	
+SELECT * FROM JobOpenings;
+
+CREATE TABLE Applicants (ApplicantID INT PRIMARY KEY, ApplicantName VARCHAR(255), ExperienceYears INT,
+						 Education VARCHAR(255), AppliedForJobID INT,
+						 FOREIGN KEY(AppliedForJobID) REFERENCES JobOpenings(JobID));
+						 
+INSERT INTO Applicants VALUES
+	(501, 'John Astronaut', 7, 'Master''s in Aerospace Engineering', 101),
+	(502, 'Lisa Scientist', 4, 'PhD in Physics', 102),
+	(503, 'Mark Engineer', 5, 'Bachelor''s in Mechanical Engineering', 103),
+	(504, 'Emily Communicator', 3, 'Bachelor''s in Communications', 104);
+	
+SELECT * FROM Applicants;
+
+SELECT JobTitle, Department, MinimumExperience, MinimumEducation FROM JobOpenings; 
+
+SELECT j.JobTitle, a.ApplicantName FROM JobOpenings j
+	RIGHT JOIN Applicants a ON j.JobID = a.AppliedForJobID;
+	
+SELECT a.ApplicantName, a.ExperienceYears, j.MinimumExperience FROM Applicants a
+	JOIN JobOpenings j ON a.AppliedForJobID = j.JobID
+	WHERE a.ExperienceYears >= j.MinimumExperience;
+	
+SELECT a.ApplicantID, a.ApplicantName, a.AppliedForJobID FROM Applicants a
+	LEFT JOIN JobOpenings j ON a.AppliedForJobID = j.JobID
+	WHERE j.JobID = NULL;
+	
+SELECT JobID, JobTitle, MinimumExperience FROM JobOpenings
+	WHERE MinimumExperience >=3 AND MinimumExperience <= 5;
+	
+SELECT j.JobID, j.JobTitle, a.Education, COUNT(a.applicantID) AS ApplicantCount FROM JobOpenings j
+	LEFT JOIN Applicants a ON j.JobID = a.AppliedForJobID
+	GROUP BY j.JobID, a.Education;
